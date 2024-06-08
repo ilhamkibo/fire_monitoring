@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View, Image } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Alert,
+  Button,
+} from "react-native";
 import Paho from "paho-mqtt";
 import TimeContainer from "../../components/TimeContainer";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
@@ -19,8 +27,10 @@ const TabTwoScreen = () => {
     if (fire < 30) {
       return "Lemah";
     } else if (fire >= 30 && fire <= 70) {
+      createTwoButtonAlert("SIAGA! Api Sedang", `Api mencapai: ${fire}`);
       return "Sedang";
     } else {
+      createTwoButtonAlert("BAHAYA! Api Kuat", `Api mencapai: ${fire}`);
       return "Kuat";
     }
   };
@@ -29,8 +39,16 @@ const TabTwoScreen = () => {
     if (asapValue < 30) {
       return "Tipis";
     } else if (asapValue >= 30 && asapValue <= 70) {
+      createTwoButtonAlert(
+        "SIAGA! Asap Sedang",
+        `Kepekatan asap mencapai: ${asapValue}`
+      );
       return "Sedang";
     } else {
+      createTwoButtonAlert(
+        "BAHAYA! Asap Pekat",
+        `Kepekatan mencapai: ${asapValue}`
+      );
       return "Pekat";
     }
   };
@@ -39,15 +57,17 @@ const TabTwoScreen = () => {
     if (temp < 30) {
       return "Normal";
     } else if (temp >= 30 && temp <= 70) {
+      createTwoButtonAlert("SIAGA! Suhu Sedang", `Suhu mencapai: ${temp}`);
       return "Hangat";
     } else {
+      createTwoButtonAlert("BAHAYA! Suhu Tinggi", `Suhu mencapai: ${temp}`);
       return "Panas";
     }
   };
 
   useEffect(() => {
     // Create a client only if it does not already exist
-    const client = new Paho.Client("broker.emqx.io", Number(8083), "disable");
+    const client = new Paho.Client("broker.emqx.io", Number(8083), "bjirr");
 
     client.onMessageArrived = function (message) {
       // Parse the incoming message payload
@@ -68,13 +88,23 @@ const TabTwoScreen = () => {
 
     client.connect({
       onSuccess: function () {
-        console.log("connected");
         client.subscribe("fire-alarm");
+        console.log("connected");
       },
     });
   }, []);
 
   const testImageUrl = "https://via.placeholder.com/150"; // Use this URL to test
+
+  const createTwoButtonAlert = (title, subtitle) =>
+    Alert.alert(title, subtitle, [
+      // {
+      //   text: "Cancel",
+      //   onPress: () => console.log("Cancel Pressed"),
+      //   style: "cancel",
+      // },
+      { text: "OK", onPress: () => console.log("OK Pressed") },
+    ]);
 
   return (
     <ScrollView style={styles.container}>
